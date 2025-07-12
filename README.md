@@ -9,16 +9,14 @@ StackIt is a lightweight question-and-answer platform built for students, develo
 | Name                | Role               | Email                  |
 |---------------------|--------------------|------------------------|
 | Bhupendra Dewangan  | Backend Developer  | bhupendra@example.com  |
-| [Teammate 2]        | Frontend Developer | teammate2@example.com  |
-| [Teammate 3]        | UI/UX Designer     | teammate3@example.com  |
+| Bhupesh Dewangan    | Frontend Developer | teammate2@example.com  |
+| Jaikumar Dewangan   | UI/UX Designer     | teammate3@example.com  |
 
 ---
 
 ## 👨‍🏫 Mentor
 
-| Name           | Department        | Email               |
-|----------------|-------------------|---------------------|
-| [Mentor Name]  | CSE / IT / Others | mentor@example.com  |
+- Aman Patel
 
 ---
 
@@ -41,19 +39,10 @@ StackIt is a lightweight question-and-answer platform built for students, develo
 - Node.js
 - Express.js
 - MongoDB (with Mongoose)
-- JWT for Auth
-- Socket.IO for notifications
 
-### (Optional Frontend)
+### Frontend
 - React.js
 - Tailwind CSS
 - Axios
 
 ---
-
-## 📦 Backend Setup
-
-1. **Clone the repo**
-```bash
-git clone https://github.com/yourusername/stackit-backend.git
-cd stackit-backend
