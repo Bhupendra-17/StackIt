@@ -20,9 +20,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/questions', require('./routes/questions'));
-// app.use('/api/answers', require('./routes/answers'));
-// app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/questions', require('./routes/questions'));
+app.use('/api/answer', require('./routes/answer'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // ✅ Simple public route
 app.get('/', (req, res) => {
