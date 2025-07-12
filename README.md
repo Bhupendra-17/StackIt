@@ -6,11 +6,11 @@ StackIt is a lightweight question-and-answer platform built for students, develo
 
 ## 👥 Team Members
 
-| Name                | Role               | Email                  |
-|---------------------|--------------------|------------------------|
-| Bhupendra Dewangan  | Backend Developer  | bhupendra@example.com  |
-| Bhupesh Dewangan    | Frontend Developer | teammate2@example.com  |
-| Jaikumar Dewangan   | UI/UX Designer     | teammate3@example.com  |
+| Name                | Role               
+|---------------------|--------------------|
+| Bhupendra Dewangan  | Backend Developer  | 
+| Jaikumar Dewangan    | Frontend Developer |
+| Bhupesh Dewangan   | UI/UX Designer     |
 
 ---
 
