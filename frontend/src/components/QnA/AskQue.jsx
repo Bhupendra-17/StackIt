@@ -17,13 +17,47 @@ const AskQue = () => {
     setDescription(value);
   };
 
-  const handleSubmit = (e) => {
+  //askque
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ title, description, tags });
-    setTitle("");
-    setDescription("");
-    setTags([]);
-    setTagsInput("");
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must be logged in to post a question.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          tags,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Question posted successfully!");
+        // Clear form
+        setTitle("");
+        setDescription("");
+        setTags([]);
+        setTagsInput("");
+      } else {
+        alert(data.message || "Failed to post question.");
+      }
+    } catch (err) {
+      console.error("Error posting question:", err);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (

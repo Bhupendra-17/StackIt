@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+ 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -46,6 +46,7 @@ export default function LoginPage() {
     setTimeout(() => {
       alert("Login successful!");
       setIsSubmitting(false);
+      navigate("/"); // ✅ navigate to home after OK is clicked
     }, 1500);
   };
 
@@ -69,9 +70,8 @@ export default function LoginPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${
-                errors.email ? "border-red-500" : "border-gray-700"
-              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${errors.email ? "border-red-500" : "border-gray-700"
+                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="you@example.com"
             />
             {errors.email && (
@@ -92,9 +92,8 @@ export default function LoginPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${
-                errors.password ? "border-red-500" : "border-gray-700"
-              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${errors.password ? "border-red-500" : "border-gray-700"
+                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Enter your password"
             />
             {errors.password && (

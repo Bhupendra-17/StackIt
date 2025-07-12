@@ -1,80 +1,60 @@
-<<<<<<< HEAD
-# StackIt
-A Minimal Q&amp;A Forum Platform
-=======
 # 🧠 StackIt – Collaborative Q&A Platform
 
-StackIt is a lightweight question-and-answer platform built for students, developers, and learners to ask technical questions, answer peer queries, upvote useful content, and engage in meaningful discussions through comments and real-time notifications.
->>>>>>> 52c55bce38ff465936f8aa01036b44848e3d8d83
+**StackIt** is a lightweight, real-time Q&A platform built for students, developers, and curious minds to:
+- 📝 Ask questions
+- 💡 Share answers
+- 👍 Upvote helpful content
+- 💬 Discuss ideas via comments
+- 🔔 Receive real-time notifications
 
 ---
 
 ## 👥 Team Members
 
-<<<<<<< HEAD
-| Name                | Role               | 
-|---------------------|--------------------|
-| Bhupendra Dewangan  | Backend Developer  | 
-| Jaikumar Dewangan   | Frontend Developer | 
-| Bhupesh Dewangan    | UI/UX Designer     | 
-=======
-| Name                | Role               | Email                  |
-|---------------------|--------------------|------------------------|
-| Bhupendra Dewangan  | Backend Developer  | bhupendra@example.com  |
-| Bhupesh Dewangan    | Frontend Developer | teammate2@example.com  |
-| Jaikumar Dewangan   | UI/UX Designer     | teammate3@example.com  |
->>>>>>> 52c55bce38ff465936f8aa01036b44848e3d8d83
+| Name                | Role               | Email                   |
+|---------------------|--------------------|--------------------------|
+| Bhupendra Dewangan  | Backend Developer  | bhupendra@example.com   |
+| Jaikumar Dewangan    | Frontend Developer | bhupesh@example.com     |
+| Bhupesh Dewangan   | UI/UX Designer     | jaikumar@example.com    |
 
 ---
 
 ## 👨‍🏫 Mentor
 
-<<<<<<< HEAD
-- Aman Patel    
-
----
-
-## 🚀 Tech Stack -- MERN Stack for scalable and reliable stack
-
-### 🔧 Backend
-- Node.js
-- Express.js
-- MongoDB (using Mongoose)
-
-### 💻 Frontend (optional)
-- React.js
-- Tailwind CSS
-  
----
-=======
-- Aman Patel
+- **Aman Patel**
 
 ---
 
 ## 🚀 Features
 
-- 🔐 **User Authentication** (JWT)
-- ❓ **Ask Questions** with tags and description
+- 🔐 **User Authentication** (JWT-based)
+- ❓ **Ask Questions** with title, description & tags
 - 💬 **Post Answers** to questions
 - 👍 **Upvote** Questions and Answers
-- 💬 **Comment** on Answers
-- 🔔 **Real-Time Notifications** via Socket.IO
-- 🧠 **Get all questions with answers** (for feed display)
-- 🧾 **MongoDB-based** backend with Mongoose
+- 💭 **Comment** on Answers
+- 🔔 **Real-Time Notifications** with Socket.IO
+- 📥 **MongoDB-powered** data persistence
+- 📦 **API-first Backend** with clean architecture
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Backend
+### 🔧 Backend
 - Node.js
 - Express.js
-- MongoDB (with Mongoose)
+- MongoDB + Mongoose
 
-### Frontend
+### 💻 Frontend
 - React.js
 - Tailwind CSS
-- Axios
 
 ---
->>>>>>> 52c55bce38ff465936f8aa01036b44848e3d8d83
+
+## 📌 How to Run Locally
+
+### 🔙 Backend
+```bash
+cd backend
+npm install
+npm run dev
