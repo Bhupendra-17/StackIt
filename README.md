@@ -11,11 +11,11 @@
 
 ## 👥 Team Members
 
-| Name                | Role               | Email                   |
-|---------------------|--------------------|--------------------------|
-| Bhupendra Dewangan  | Backend Developer  | bhupendra@example.com   |
-| Jaikumar Dewangan    | Frontend Developer | bhupesh@example.com     |
-| Bhupesh Dewangan   | UI/UX Designer     | jaikumar@example.com    |
+| Name                | Role               | 
+|---------------------|--------------------|
+| Bhupendra Dewangan  | Backend Developer  |
+| Jaikumar Dewangan   | Frontend Developer |
+| Bhupesh Dewangan   | UI/UX Designer     |
 
 ---
 
