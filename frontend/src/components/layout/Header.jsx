@@ -43,11 +43,7 @@ export default function Header() {
             href="/"
             className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
           >
-            <img
-              src="/StackIt.png"
-              alt="StackIt Logo"
-              className="h-12 w-auto" // Adjust height as needed
-            />
+            <span className="font-bold text-xl text-white">StackIt</span>
           </a>
         </div>
 

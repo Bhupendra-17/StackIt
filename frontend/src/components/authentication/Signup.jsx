@@ -43,45 +43,21 @@ export default function SignupPage() {
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  const validationErrors = validate();
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
-
-  setIsSubmitting(true);
-  try {
-    const response = await fetch("http://localhost:5000/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: formData.name, // ✅ FIXED: send name
-        email: formData.email,
-        password: formData.password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("Signup successful!");
-      window.location.href = "/";
-    } else {
-      alert(data.message || "Signup failed");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
-  } catch (err) {
-    console.error("Signup error:", err);
-    alert("Something went wrong!");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
 
-
+    setIsSubmitting(true);
+    // Simulate API call
+    setTimeout(() => {
+      alert("Signup successful!");
+      setIsSubmitting(false);
+    }, 1500);
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -103,8 +79,9 @@ export default function SignupPage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${errors.name ? "border-red-500" : "border-gray-700"
-                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${
+                errors.name ? "border-red-500" : "border-gray-700"
+              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Your full name"
             />
             {errors.name && (
@@ -125,8 +102,9 @@ export default function SignupPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${errors.email ? "border-red-500" : "border-gray-700"
-                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${
+                errors.email ? "border-red-500" : "border-gray-700"
+              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="you@example.com"
             />
             {errors.email && (
@@ -147,8 +125,9 @@ export default function SignupPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${errors.password ? "border-red-500" : "border-gray-700"
-                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${
+                errors.password ? "border-red-500" : "border-gray-700"
+              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Create a password"
             />
             {errors.password && (
@@ -169,8 +148,9 @@ export default function SignupPage() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${errors.confirmPassword ? "border-red-500" : "border-gray-700"
-                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${
+                errors.confirmPassword ? "border-red-500" : "border-gray-700"
+              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Confirm your password"
             />
             {errors.confirmPassword && (

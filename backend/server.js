@@ -37,7 +37,6 @@ app.get('/api/protected', authMiddleware, (req, res) => {
   });
 });
 
-// Socket setup
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 

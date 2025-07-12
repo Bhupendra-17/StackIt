@@ -33,7 +33,7 @@ export default function LoginPage() {
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -42,32 +42,11 @@ export default function LoginPage() {
     }
 
     setIsSubmitting(true);
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Save JWT token to localStorage
-        localStorage.setItem("token", data.token);
-        alert("Login successful!");
-        // redirect to homepage or dashboard
-        window.location.href = "/";
-      } else {
-        alert(data.message || "Login failed");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      alert("Something went wrong!");
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
+      alert("Login successful!");
       setIsSubmitting(false);
-    }
+    }, 1500);
   };
 
   return (
@@ -90,8 +69,9 @@ export default function LoginPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${errors.email ? "border-red-500" : "border-gray-700"
-                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${
+                errors.email ? "border-red-500" : "border-gray-700"
+              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="you@example.com"
             />
             {errors.email && (
@@ -112,8 +92,9 @@ export default function LoginPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${errors.password ? "border-red-500" : "border-gray-700"
-                } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full px-4 py-2 rounded-md border ${
+                errors.password ? "border-red-500" : "border-gray-700"
+              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Enter your password"
             />
             {errors.password && (
