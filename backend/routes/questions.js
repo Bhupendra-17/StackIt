@@ -4,13 +4,15 @@ const router = express.Router();
 const {
   createQuestion,
   getAllQuestionsWithAnswers,
-  upvoteQuestion // ✅ you must add this
+  upvoteQuestion
 } = require('../controllers/questionController');
 
 const authMiddleware = require('../middleware/auth');
+const upload = require('../middleware/upload'); // ✅ multer config
 
-router.post('/', authMiddleware, createQuestion);
+// ✅ Use upload.single for image upload
+router.post('/', authMiddleware, upload.single('image'), createQuestion);
 router.get('/all', getAllQuestionsWithAnswers);
-router.post('/:id/upvote', authMiddleware, upvoteQuestion); // ✅ safe now
+router.post('/:id/upvote', authMiddleware, upvoteQuestion);
 
 module.exports = router;
