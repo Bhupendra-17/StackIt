@@ -1,29 +1,54 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../layout/Layout";
 import TextEditor from "./TextEditor";
 import TagsInput from "./TagsInput";
+import { questionAPI } from "../../services/api";
 
 const AskQue = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tagsInput, setTagsInput] = useState("");
   const [tags, setTags] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
+    setError("");
   };
 
   const handleDescriptionChange = (value) => {
     setDescription(value);
+    setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ title, description, tags });
-    setTitle("");
-    setDescription("");
-    setTags([]);
-    setTagsInput("");
+
+    if (!title.trim() || !description.trim()) {
+      setError("Title and description are required");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      await questionAPI.createQuestion({
+        title,
+        description,
+        tags,
+      });
+
+      // Success - redirect to home
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to post question");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -34,6 +59,12 @@ const AskQue = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">
               Ask a Question
             </h1>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-md">
+                <p className="text-red-500 text-sm">{error}</p>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Title Section */}
@@ -73,7 +104,7 @@ const AskQue = () => {
                 />
               </div>
 
-              {/* Tags Section - Using the new TagsInput component */}
+              {/* Tags Section */}
               <TagsInput
                 tags={tags}
                 setTags={setTags}
@@ -85,10 +116,10 @@ const AskQue = () => {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200"
-                  disabled={!title || !description}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!title || !description || isSubmitting}
                 >
-                  Post Question
+                  {isSubmitting ? "Posting..." : "Post Question"}
                 </button>
               </div>
             </form>

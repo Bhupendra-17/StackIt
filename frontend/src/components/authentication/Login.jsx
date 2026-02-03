@@ -1,6 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -33,7 +38,7 @@ export default function LoginPage() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -42,19 +47,35 @@ export default function LoginPage() {
     }
 
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      alert("Login successful!");
+
+    try {
+      const result = await login(formData.email, formData.password);
+
+      if (result.success) {
+        navigate("/");
+      } else {
+        setErrors({ general: result.error });
+      }
+    } catch (error) {
+      setErrors({ general: "An unexpected error occurred" });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-lg p-8">
         <h2 className="text-3xl font-bold text-white mb-6 text-center">
-          Log In
+          Log In to StackIt
         </h2>
+
+        {errors.general && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-md">
+            <p className="text-red-500 text-sm">{errors.general}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
@@ -105,7 +126,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Logging in..." : "Log In"}
           </button>
@@ -114,9 +135,9 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           <p className="text-gray-400 text-sm">
             Don't have an account?{" "}
-            <a href="/signup" className="text-blue-400 hover:text-blue-300">
+            <Link to="/signup" className="text-blue-400 hover:text-blue-300">
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>

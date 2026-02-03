@@ -1,5 +1,5 @@
-const Question = require('../models/Question');
-const Answer = require('../models/Answer');
+const Question = require("../models/Question");
+const Answer = require("../models/Answer");
 
 // ✅ Create Question
 const createQuestion = async (req, res) => {
@@ -24,13 +24,14 @@ const createQuestion = async (req, res) => {
 const getAllQuestionsWithAnswers = async (req, res) => {
   try {
     const questions = await Question.find()
-      .populate('user', 'email')
+      .populate("user", "username email")
       .sort({ createdAt: -1 });
 
     const data = await Promise.all(
       questions.map(async (q) => {
         const answers = await Answer.find({ question: q._id })
-          .populate('user', 'email')
+          .populate("user", "username email")
+          .populate("comments.user", "username email")
           .sort({ createdAt: -1 });
 
         return {
@@ -38,7 +39,7 @@ const getAllQuestionsWithAnswers = async (req, res) => {
           upvotes: q.upvotes?.length || 0,
           answers,
         };
-      })
+      }),
     );
 
     res.status(200).json(data);
@@ -52,7 +53,8 @@ const upvoteQuestion = async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
 
-    if (!question) return res.status(404).json({ message: 'Question not found' });
+    if (!question)
+      return res.status(404).json({ message: "Question not found" });
 
     const userId = req.user.id;
 

@@ -1,8 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignupPage() {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -20,8 +25,10 @@ export default function SignupPage() {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
     }
 
     if (!formData.email.trim()) {
@@ -43,7 +50,7 @@ export default function SignupPage() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -52,40 +59,60 @@ export default function SignupPage() {
     }
 
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      alert("Signup successful!");
+
+    try {
+      const result = await register(
+        formData.username,
+        formData.email,
+        formData.password,
+      );
+
+      if (result.success) {
+        navigate("/");
+      } else {
+        setErrors({ general: result.error });
+      }
+    } catch (error) {
+      setErrors({ general: "An unexpected error occurred" });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-lg p-8">
         <h2 className="text-3xl font-bold text-white mb-6 text-center">
-          Sign Up
+          Join StackIt
         </h2>
+
+        {errors.general && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-md">
+            <p className="text-red-500 text-sm">{errors.general}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
-              htmlFor="name"
+              htmlFor="username"
               className="block text-sm font-medium text-gray-300 mb-1"
             >
-              Full Name
+              Username
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
               className={`w-full px-4 py-2 rounded-md border ${
-                errors.name ? "border-red-500" : "border-gray-700"
+                errors.username ? "border-red-500" : "border-gray-700"
               } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              placeholder="Your full name"
+              placeholder="Choose a username"
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            {errors.username && (
+              <p className="text-red-500 text-sm mt-1">{errors.username}</p>
             )}
           </div>
 
@@ -163,7 +190,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Signing up..." : "Sign Up"}
           </button>
@@ -172,9 +199,9 @@ export default function SignupPage() {
         <div className="mt-6 text-center">
           <p className="text-gray-400 text-sm">
             Already have an account?{" "}
-            <a href="/login" className="text-blue-400 hover:text-blue-300">
+            <Link to="/login" className="text-blue-400 hover:text-blue-300">
               Log in
-            </a>
+            </Link>
           </p>
         </div>
       </div>
