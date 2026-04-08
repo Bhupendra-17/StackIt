@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle2, CircleAlert, Lightbulb } from "lucide-react";
 import Layout from "../layout/Layout";
 import TextEditor from "./TextEditor";
 import TagsInput from "./TagsInput";
 import { questionAPI } from "../../services/api";
+
+const stripHtml = (value = "") =>
+  value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const AskQue = () => {
   const navigate = useNavigate();
@@ -14,21 +21,23 @@ const AskQue = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
-    setError("");
-  };
+  const plainDescription = useMemo(() => stripHtml(description), [description]);
 
-  const handleDescriptionChange = (value) => {
-    setDescription(value);
-    setError("");
-  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (!title.trim()) {
+      setError("Please add a clear title.");
+      return;
+    }
 
-    if (!title.trim() || !description.trim()) {
-      setError("Title and description are required");
+    if (title.trim().length > 150) {
+      setError("Title cannot exceed 150 characters.");
+      return;
+    }
+
+    if (!plainDescription) {
+      setError("Please add a detailed description.");
       return;
     }
 
@@ -36,16 +45,16 @@ const AskQue = () => {
     setError("");
 
     try {
-      await questionAPI.createQuestion({
-        title,
+      const response = await questionAPI.createQuestion({
+        title: title.trim(),
         description,
         tags,
       });
 
-      // Success - redirect to home
-      navigate("/");
+      const createdId = response.data?.question?._id;
+      navigate(createdId ? `/?question=${createdId}` : "/");
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to post question");
+      setError(err.response?.data?.message || "Failed to post your question.");
     } finally {
       setIsSubmitting(false);
     }
@@ -53,81 +62,121 @@ const AskQue = () => {
 
   return (
     <Layout>
-      <div className="bg-gray-900 min-h-screen py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">
-              Ask a Question
-            </h1>
+      <div className="mx-auto w-full max-w-5xl space-y-6">
+        <section className="app-surface rounded-3xl border border-slate-700/70 p-6 sm:p-8">
+          <p className="mb-2 text-xs uppercase tracking-[0.18em] text-cyan-300/70">Ask The Community</p>
+          <h1 className="text-3xl font-heading font-semibold text-slate-100 sm:text-4xl">
+            Share Your Question Clearly
+          </h1>
+          <p className="mt-3 text-sm text-slate-300 sm:text-base">
+            Better context gets better answers. Show what you tried, what failed, and what you expect.
+          </p>
+        </section>
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-md">
-                <p className="text-red-500 text-sm">{error}</p>
-              </div>
-            )}
+        <section className="rounded-2xl border border-cyan-300/30 bg-cyan-400/10 p-5">
+          <h2 className="mb-3 inline-flex items-center gap-2 text-base font-semibold text-cyan-100">
+            <Lightbulb className="h-4 w-4" />
+            Quick Tips
+          </h2>
+          <ul className="space-y-2 text-sm text-cyan-50/90">
+            <li className="inline-flex items-start gap-2">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              Keep the title specific so experts can understand the issue quickly.
+            </li>
+            <li className="inline-flex items-start gap-2">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              Include exact errors, environment details, and code snippets when possible.
+            </li>
+            <li className="inline-flex items-start gap-2">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              Add relevant tags so the right people can discover your question.
+            </li>
+          </ul>
+        </section>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Title Section */}
-              <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-300 mb-2"
-                >
-                  Title
-                </label>
-                <p className="text-xs text-gray-400 mb-3">
-                  Be specific and imagine you're asking a question to another
-                  person.
-                </p>
-                <input
-                  type="text"
-                  id="title"
-                  value={title}
-                  onChange={handleTitleChange}
-                  placeholder="e.g. How do I center a div in React?"
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              {/* Description Section */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Description
-                </label>
-                <p className="text-xs text-gray-400 mb-3">
-                  Introduce the problem and expand on what you put in the title.
-                </p>
-                <TextEditor
-                  value={description}
-                  onChange={handleDescriptionChange}
-                />
-              </div>
-
-              {/* Tags Section */}
-              <TagsInput
-                tags={tags}
-                setTags={setTags}
-                inputValue={tagsInput}
-                setInputValue={setTagsInput}
-              />
-
-              {/* Submit Button */}
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!title || !description || isSubmitting}
-                >
-                  {isSubmitting ? "Posting..." : "Post Question"}
-                </button>
-              </div>
-            </form>
+        {error && (
+          <div className="rounded-2xl border border-rose-300/40 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+            <span className="inline-flex items-center gap-2">
+              <CircleAlert className="h-4 w-4" />
+              {error}
+            </span>
           </div>
-        </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <section className="app-surface rounded-2xl border border-slate-700/70 p-5 sm:p-6">
+            <label htmlFor="title" className="mb-2 block text-lg font-semibold text-slate-100">
+              Title
+            </label>
+            <p className="mb-3 text-sm text-slate-400">
+              Good example: "Why does my React state update lag in a debounced input?"
+            </p>
+            <input
+              id="title"
+              value={title}
+              onChange={(event) => {
+                setTitle(event.target.value);
+                if (error) {
+                  setError("");
+                }
+              }}
+              maxLength={160}
+              placeholder="Describe your issue in one sentence"
+              className="app-input h-12 w-full rounded-xl px-4"
+            />
+            <p className="mt-2 text-xs text-slate-400">{title.trim().length}/150 recommended</p>
+          </section>
+
+          <section className="app-surface rounded-2xl border border-slate-700/70 p-5 sm:p-6">
+            <label className="mb-2 block text-lg font-semibold text-slate-100">Description</label>
+            <p className="mb-3 text-sm text-slate-400">
+              Add context, expected result, current output, and code snippets.
+            </p>
+            <TextEditor
+              value={description}
+              onChange={(value) => {
+                setDescription(value || "");
+                if (error) {
+                  setError("");
+                }
+              }}
+            />
+          </section>
+
+          <section className="app-surface rounded-2xl border border-slate-700/70 p-5 sm:p-6">
+            <label className="mb-2 block text-lg font-semibold text-slate-100">Tags</label>
+            <p className="mb-3 text-sm text-slate-400">
+              Up to five tags. Use concise keywords like `react`, `nodejs`, or `mongodb`.
+            </p>
+            <TagsInput
+              tags={tags}
+              setTags={setTags}
+              inputValue={tagsInput}
+              setInputValue={setTagsInput}
+            />
+          </section>
+
+          <div className="flex flex-col justify-end gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="app-btn-ghost rounded-xl px-5 py-2.5 text-sm font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !title.trim() || !plainDescription}
+              className="app-btn-primary rounded-xl px-6 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting ? "Publishing..." : "Publish Question"}
+            </button>
+          </div>
+        </form>
       </div>
     </Layout>
   );
 };
 
 export default AskQue;
+

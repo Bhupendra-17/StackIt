@@ -1,21 +1,28 @@
+﻿const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 
-// Get user notifications
-exports.getNotifications = async (req, res) => {
+exports.getNotifications = async (req, res, next) => {
   try {
     const notifications = await Notification.find({ recipient: req.user.id })
       .sort({ createdAt: -1 })
-      .limit(20);
+      .limit(50);
 
-    res.json(notifications);
+    res.json({
+      success: true,
+      count: notifications.length,
+      notifications,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-// Mark notification as read
-exports.markAsRead = async (req, res) => {
+exports.markAsRead = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid notification id" });
+    }
+
     const notification = await Notification.findById(req.params.id);
 
     if (!notification) {
@@ -29,22 +36,30 @@ exports.markAsRead = async (req, res) => {
     notification.read = true;
     await notification.save();
 
-    res.json({ message: "Notification marked as read" });
+    res.json({
+      success: true,
+      message: "Notification marked as read",
+      notification,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-// Mark all notifications as read
-exports.markAllAsRead = async (req, res) => {
+exports.markAllAsRead = async (req, res, next) => {
   try {
-    await Notification.updateMany(
+    const result = await Notification.updateMany(
       { recipient: req.user.id, read: false },
       { read: true },
     );
 
-    res.json({ message: "All notifications marked as read" });
+    res.json({
+      success: true,
+      message: "All notifications marked as read",
+      updatedCount: result.modifiedCount || 0,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
+

@@ -1,54 +1,102 @@
-const express = require('express');
-const http = require('http');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-const authMiddleware = require('./middleware/auth'); // ⬅️ Import JWT middleware
+﻿const express = require("express");
+const http = require("http");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+const authMiddleware = require("./middleware/auth");
+const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
 
 dotenv.config();
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("Missing JWT_SECRET in environment variables");
+}
+
 connectDB();
 
 const app = express();
 const server = http.createServer(app);
-const io = require('socket.io')(server, {
-  cors: { origin: '*' }
+
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  : ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  }),
+);
+
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+const io = require("socket.io")(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+app.set("io", io);
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/questions', require('./routes/questions'));
-app.use('/api/answer', require('./routes/answer'));
-app.use('/api/notifications', require('./routes/notifications'));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/questions", require("./routes/questions"));
+app.use("/api/answer", require("./routes/answer"));
+app.use("/api/notifications", require("./routes/notifications"));
 
-// ✅ Simple public route
-app.get('/', (req, res) => {
-  res.send('🚀 StackIt API is running!');
+app.get("/", (_req, res) => {
+  res.send("StackIt API is running");
 });
 
-// ✅ Test protected route
-app.get('/api/protected', authMiddleware, (req, res) => {
+app.get("/api/health", (_req, res) => {
   res.json({
-    message: '🎉 You have accessed a protected route!',
-    user: req.user, // User info from token
+    success: true,
+    status: "ok",
+    timestamp: new Date().toISOString(),
   });
 });
 
-// Socket setup
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
-  socket.on('notify', (data) => {
-    socket.broadcast.emit('notification', data);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
+app.get("/api/protected", authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: "You have accessed a protected route",
+    user: req.user,
   });
 });
+
+io.on("connection", (socket) => {
+  socket.on("register", (userId) => {
+    if (!userId) {
+      return;
+    }
+
+    socket.join(`user:${userId}`);
+  });
+
+  socket.on("notify", ({ userId, payload }) => {
+    if (!userId || !payload) {
+      return;
+    }
+
+    io.to(`user:${userId}`).emit("notification", payload);
+  });
+});
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+

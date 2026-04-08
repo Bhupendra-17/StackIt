@@ -1,66 +1,77 @@
-import React from "react";
+﻿import { X } from "lucide-react";
+
+const MAX_TAGS = 5;
 
 const TagsInput = ({ tags, setTags, inputValue, setInputValue }) => {
-  const handleTagsChange = (e) => {
-    setInputValue(e.target.value);
+  const addTag = () => {
+    const normalized = inputValue.trim().toLowerCase();
+
+    if (!normalized || tags.includes(normalized) || tags.length >= MAX_TAGS) {
+      return;
+    }
+
+    setTags([...tags, normalized]);
+    setInputValue("");
   };
 
-  const handleTagsKeyDown = (e) => {
-    if (["Enter", ","].includes(e.key)) {
-      e.preventDefault();
-      const newTag = inputValue.trim();
-      if (newTag && !tags.includes(newTag)) {
-        setTags([...tags, newTag]);
-        setInputValue("");
-      }
+  const handleTagsKeyDown = (event) => {
+    if (["Enter", ","].includes(event.key)) {
+      event.preventDefault();
+      addTag();
+    }
+
+    if (event.key === "Backspace" && !inputValue && tags.length > 0) {
+      setTags(tags.slice(0, -1));
     }
   };
 
-  const removeTag = (index) => {
-    setTags(tags.filter((_, i) => i !== index));
+  const removeTag = (tagToDelete) => {
+    setTags(tags.filter((tag) => tag !== tagToDelete));
   };
 
   return (
     <div>
-      <label
-        htmlFor="tags"
-        className="block text-sm font-medium text-gray-300 mb-2"
-      >
-        Tags
-      </label>
-      <p className="text-xs text-gray-400 mb-3">
-        Add up to 5 tags to describe what your question is about.
-      </p>
-      <input
-        type="text"
-        id="tags"
-        value={inputValue}
-        onChange={handleTagsChange}
-        onKeyDown={handleTagsKeyDown}
-        placeholder="Type a tag and press comma or enter"
-        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      {/* Selected Tags */}
-      <div className="flex flex-wrap gap-2 mt-3">
-        {tags.map((tag, index) => (
-          <div
-            key={index}
-            className="flex items-center bg-blue-600 text-white px-3 py-1 rounded-full text-sm"
-          >
-            {tag}
-            <button
-              type="button"
-              onClick={() => removeTag(index)}
-              className="ml-2 text-xs"
+      <div className="rounded-xl border border-slate-700 bg-slate-900/70 p-3">
+        <div className="mb-2 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1 rounded-full border border-cyan-300/40 bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-200"
             >
-              ×
-            </button>
-          </div>
-        ))}
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="rounded-full p-0.5 text-cyan-100/80 transition hover:bg-cyan-300/20 hover:text-cyan-100"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+          onKeyDown={handleTagsKeyDown}
+          onBlur={addTag}
+          placeholder={
+            tags.length >= MAX_TAGS
+              ? `Maximum ${MAX_TAGS} tags reached`
+              : "Type a tag and press Enter"
+          }
+          disabled={tags.length >= MAX_TAGS}
+          className="app-input h-11 w-full rounded-xl px-3"
+        />
       </div>
+
+      <p className="mt-2 text-xs text-slate-400">
+        {tags.length}/{MAX_TAGS} tags used.
+      </p>
     </div>
   );
 };
 
 export default TagsInput;
+

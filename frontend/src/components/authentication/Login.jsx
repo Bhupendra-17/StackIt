@@ -1,142 +1,119 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+﻿import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { CircleAlert, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
+import { useAuth } from "../context/auth-context";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: "" });
-  };
+  const redirectTo =
+    location.state?.from?.pathname && location.state?.from?.pathname !== "/login"
+      ? `${location.state.from.pathname}${location.state.from.search || ""}`
+      : "/";
 
-  const validate = () => {
-    const newErrors = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    return newErrors;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setIsSubmitting(true);
+    setError("");
 
-    try {
-      const result = await login(formData.email, formData.password);
+    const result = await login(formData.email, formData.password);
 
-      if (result.success) {
-        navigate("/");
-      } else {
-        setErrors({ general: result.error });
-      }
-    } catch (error) {
-      setErrors({ general: "An unexpected error occurred" });
-    } finally {
-      setIsSubmitting(false);
+    if (result.success) {
+      navigate(redirectTo, { replace: true });
+    } else {
+      setError(result.error);
     }
+
+    setIsSubmitting(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-gray-800 rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-white mb-6 text-center">
-          Log In to StackIt
-        </h2>
+    <div className="min-h-screen app-bg app-page-grid flex items-center justify-center px-4 py-8">
+      <div className="app-surface relative w-full max-w-md overflow-hidden rounded-3xl border border-slate-700/70 p-7 shadow-2xl sm:p-9">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-cyan-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-blue-500/15 blur-3xl" />
 
-        {errors.general && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-md">
-            <p className="text-red-500 text-sm">{errors.general}</p>
-          </div>
-        )}
+        <div className="relative z-10">
+          <p className="mb-2 text-xs uppercase tracking-[0.18em] text-cyan-300/70">Welcome Back</p>
+          <h1 className="text-3xl font-heading font-semibold text-slate-100">Log in to StackIt</h1>
+          <p className="mt-2 text-sm text-slate-300">Jump back into your Q&A workspace.</p>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Email Address
+          {error && (
+            <div className="mt-5 rounded-xl border border-rose-300/40 bg-rose-400/10 px-3 py-2.5 text-sm text-rose-100">
+              <span className="inline-flex items-center gap-2">
+                <CircleAlert className="h-4 w-4" />
+                {error}
+              </span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+            <label className="block">
+              <span className="mb-2 inline-flex items-center gap-2 text-sm text-slate-300">
+                <Mail className="h-4 w-4" />
+                Email
+              </span>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(event) =>
+                  setFormData((state) => ({ ...state, email: event.target.value }))
+                }
+                required
+                className="app-input h-11 w-full rounded-xl px-3"
+                placeholder="you@example.com"
+              />
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${
-                errors.email ? "border-red-500" : "border-gray-700"
-              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              placeholder="you@example.com"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Password
+            <label className="block">
+              <span className="mb-2 inline-flex items-center gap-2 text-sm text-slate-300">
+                <LockKeyhole className="h-4 w-4" />
+                Password
+              </span>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(event) =>
+                    setFormData((state) => ({ ...state, password: event.target.value }))
+                  }
+                  required
+                  className="app-input h-11 w-full rounded-xl px-3 pr-10"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((value) => !value)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-200"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 rounded-md border ${
-                errors.password ? "border-red-500" : "border-gray-700"
-              } bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              placeholder="Enter your password"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
-          </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? "Logging in..." : "Log In"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="app-btn-primary w-full rounded-xl px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-400 text-sm">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-400 hover:text-blue-300">
-              Sign up
+          <p className="mt-6 text-center text-sm text-slate-300">
+            New here?{" "}
+            <Link to="/signup" className="font-semibold text-cyan-200 transition hover:text-cyan-100">
+              Create an account
             </Link>
           </p>
         </div>
@@ -144,3 +121,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
